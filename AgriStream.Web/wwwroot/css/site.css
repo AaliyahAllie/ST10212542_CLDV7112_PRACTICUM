@@ -1,0 +1,175 @@
+/* AgriStream IoT - Custom Operations Console Theme */
+/* Distinct Slate & Harvest Amber Palette */
+
+:root {
+    --brand-dark: #0f172a;       /* Deep Slate */
+    --brand-nav: #1e293b;        /* Slate 800 */
+    --brand-accent: #d97706;     /* Warm Harvest Amber */
+    --brand-accent-hover: #b45309;
+    --brand-accent-light: #fef3c7;
+    --brand-green: #059669;      /* Field Emerald */
+    --brand-green-light: #ecfdf5;
+    --brand-border: #e2e8f0;
+    --brand-bg: #f8fafc;
+}
+
+body {
+    background-color: var(--brand-bg);
+    color: #1e293b;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin-bottom: 50px;
+}
+
+/* Distinctive Top Bar */
+.top-header {
+    background-color: var(--brand-dark);
+    color: #94a3b8;
+    font-size: 0.8rem;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.main-navbar {
+    background-color: var(--brand-nav);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    padding: 0.65rem 0;
+}
+
+.main-navbar .navbar-brand {
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    font-size: 1.25rem;
+}
+
+.main-navbar .navbar-brand span {
+    color: var(--brand-accent);
+}
+
+.main-navbar .nav-link {
+    color: #94a3b8;
+    font-weight: 500;
+    padding: 0.5rem 0.85rem;
+    border-radius: 6px;
+    transition: all 0.15s ease-in-out;
+    margin-right: 2px;
+}
+
+.main-navbar .nav-link:hover,
+.main-navbar .nav-link.active {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Custom Cards */
+.card {
+    border: 1px solid var(--brand-border);
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--brand-border);
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.95rem;
+}
+
+/* Metric KPI Blocks */
+.kpi-card {
+    background: #ffffff;
+    border: 1px solid var(--brand-border);
+    border-radius: 8px;
+    padding: 20px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.kpi-title {
+    font-size: 0.775rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.kpi-number {
+    font-size: 2.15rem;
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 4px 0;
+}
+
+/* Distinct Buttons */
+.btn-agri-primary {
+    background-color: var(--brand-accent);
+    color: #ffffff;
+    border: none;
+    font-weight: 600;
+    transition: background-color 0.15s ease;
+}
+
+.btn-agri-primary:hover,
+.btn-agri-primary:focus {
+    background-color: var(--brand-accent-hover);
+    color: #ffffff;
+}
+
+.btn-agri-success {
+    background-color: var(--brand-green);
+    color: #ffffff;
+    border: none;
+    font-weight: 600;
+    transition: background-color 0.15s ease;
+}
+
+.btn-agri-success:hover,
+.btn-agri-success:focus {
+    background-color: #047857;
+    color: #ffffff;
+}
+
+/* Form Controls */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 0.2rem rgba(217, 119, 6, 0.2);
+}
+
+/* Tables */
+.table th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 700;
+    border-bottom: 2px solid var(--brand-border);
+}
+
+.table td {
+    font-size: 0.9rem;
+}
+
+/* Badges */
+.badge {
+    font-weight: 600;
+    padding: 0.4em 0.65em;
+    border-radius: 5px;
+}
+
+/* Footer */
+footer {
+    background: #ffffff;
+    border-top: 1px solid var(--brand-border);
+    color: #64748b;
+    padding: 18px 0;
+    margin-top: auto;
+}

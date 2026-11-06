@@ -1,0 +1,92 @@
+@{
+    ViewData["Title"] = "System Architecture";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+            <h2 class="fw-bold mb-3"><i class="bi bi-diagram-3 text-success me-2"></i> AgriStream IoT Cloud Architecture</h2>
+            <p class="text-secondary lead">
+                A highly scalable, multi-tier Azure cloud deployment designed to handle millions of telemetry events and bursts of aerial imagery during peak daylight hours.
+            </p>
+            <hr class="my-4" />
+
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Practicum Task</th>
+                            <th>Azure Service</th>
+                            <th>Role in AgriStream IoT Architecture</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="fw-bold">a) Web Hosting</td>
+                            <td><span class="badge bg-primary">Azure App Service</span></td>
+                            <td>Hosts the ASP.NET Core MVC web management application with automated scaling rules.</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">b) Relational Database</td>
+                            <td><span class="badge bg-success">Azure SQL Database</span></td>
+                            <td>Normalized relational database storing User credentials, System Roles (Admin, Farmer, Agronomist), Farms, Fields, and IoT Device registries.</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">c) Unstructured Media</td>
+                            <td><span class="badge bg-warning text-dark">Azure Blob Storage</span></td>
+                            <td>Container <code>drone-media</code> stores high-resolution 4K aerial imagery and survey photos.</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">c) NoSQL Telemetry</td>
+                            <td><span class="badge bg-info text-dark">Azure Table Storage</span></td>
+                            <td>Table <code>SensorTelemetry</code> ingests high-frequency soil moisture and temperature readings partitioned by <code>DeviceId</code>.</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">d) Serverless Functions</td>
+                            <td><span class="badge bg-danger">Azure Functions (4x)</span></td>
+                            <td>
+                                <ul class="mb-0 ps-3">
+                                    <li><strong>Blob Trigger:</strong> Logs drone audit entries into Table Storage on image upload.</li>
+                                    <li><strong>HTTP GET Trigger:</strong> Serves real-time telemetry to the MVC dashboard.</li>
+                                    <li><strong>HTTP POST Trigger:</strong> Places irrigation commands into Azure Storage Queue.</li>
+                                    <li><strong>Queue Trigger:</strong> Consumes irrigation commands and updates Azure SQL status.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 class="fw-bold mt-4"><i class="bi bi-layers text-primary me-2"></i> Architecture Data Flow Diagram</h4>
+            <div class="p-4 bg-light rounded-3 font-monospace small border">
+<pre class="mb-0">
+[Field Drones] ------------(Upload 4K Imagery)------------> [Azure Blob Storage: drone-media]
+                                                                        |
+                                                                        v (BlobTrigger)
+                                                            [Azure Function: ProcessDroneImageBlob]
+                                                                        |
+                                                                        v (Writes Audit Log)
+[Millions of Soil Probes] ---> [Azure Table Storage: SensorTelemetry] <----+
+                                         ^
+                                         | (Queries Latest Telemetry)
+                                    [Azure Function: GetLatestTelemetry (HTTP GET)]
+                                         ^
+                                         |
+                                    [Farmer MVC Dashboard]
+                                         |
+                                         v (Clicks "Trigger Irrigation")
+                                    [Azure Function: TriggerIrrigationPost (HTTP POST)]
+                                         |
+                                         v (Enqueues Message)
+                                    [Azure Storage Queue: irrigation-commands]
+                                         |
+                                         v (QueueTrigger)
+                                    [Azure Function: ProcessIrrigationQueue]
+                                         |
+                                         v (Executes UPDATE Status = 'Active - Irrigating')
+                                    [Azure SQL Database: IoTDevices Table]
+</pre>
+            </div>
+        </div>
+    </div>
+</div>

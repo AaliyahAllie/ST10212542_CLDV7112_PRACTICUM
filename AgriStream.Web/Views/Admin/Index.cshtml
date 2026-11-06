@@ -1,0 +1,140 @@
+@model IEnumerable<AgriStream.Web.Models.User>
+@{
+    ViewData["Title"] = "Staff Directory & Access Control";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold text-dark">Staff Directory &amp; Role Management</h3>
+        <small class="text-muted">Administrator console for managing user accounts and system permissions</small>
+    </div>
+    <div class="mt-2 mt-md-0">
+        <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-agri-primary">
+            + Register New Staff
+        </a>
+    </div>
+</div>
+
+<!-- Admin KPI Counters -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card text-center">
+            <div class="kpi-title">Total Personnel</div>
+            <div class="kpi-number text-dark">@ViewBag.TotalUsers</div>
+            <small class="text-muted">Active system accounts</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card text-center">
+            <div class="kpi-title">Administrators</div>
+            <div class="kpi-number text-danger">@ViewBag.TotalAdmins</div>
+            <small class="text-muted">Full management access</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card text-center">
+            <div class="kpi-title">Field Farmers</div>
+            <div class="kpi-number" style="color: #d97706;">@ViewBag.TotalFarmers</div>
+            <small class="text-muted">Field operations &amp; irrigation</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card text-center">
+            <div class="kpi-title">Agronomists</div>
+            <div class="kpi-number text-primary">@ViewBag.TotalAgronomists</div>
+            <small class="text-muted">Soil health &amp; drone surveys</small>
+        </div>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <span class="fw-bold text-dark">System Staff Accounts (Azure SQL Database)</span>
+        <span class="badge bg-light text-dark border">@Model.Count() Accounts Loaded</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 70px;">ID</th>
+                    <th>Username</th>
+                    <th>Email Address</th>
+                    <th>Role Assigned</th>
+                    <th>System Permissions</th>
+                    <th>Registered Date</th>
+                    <th class="text-end" style="width: 140px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    bool isSelf = user.Username.Equals(User.Identity?.Name, StringComparison.OrdinalIgnoreCase);
+
+                    <tr>
+                        <td class="text-muted">#@user.UserId</td>
+                        <td>
+                            <strong>@user.Username</strong>
+                            @if (isSelf)
+                            {
+                                <span class="badge bg-light text-success border ms-1 small">You</span>
+                            }
+                        </td>
+                        <td>@(user.Email ?? "No email provided")</td>
+                        <td>
+                            @if (user.Role?.RoleName == "Admin")
+                            {
+                                <span class="badge bg-danger">Administrator</span>
+                            }
+                            else if (user.Role?.RoleName == "Farmer")
+                            {
+                                <span class="badge" style="background-color: #d97706; color: #fff;">Farmer</span>
+                            }
+                            else if (user.Role?.RoleName == "Agronomist")
+                            {
+                                <span class="badge bg-primary">Agronomist</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@(user.Role?.RoleName ?? "Staff")</span>
+                            }
+                        </td>
+                        <td class="small text-muted">
+                            @if (user.Role?.RoleName == "Admin")
+                            {
+                                <span>Full platform control, user directory, scan deletion</span>
+                            }
+                            else if (user.Role?.RoleName == "Farmer")
+                            {
+                                <span>Remote valve control, telemetry overview, parcel monitoring</span>
+                            }
+                            else if (user.Role?.RoleName == "Agronomist")
+                            {
+                                <span>Soil reading data entry, drone survey upload, soil analytics</span>
+                            }
+                        </td>
+                        <td class="small text-muted">
+                            @user.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                        </td>
+                        <td class="text-end">
+                            @if (!isSelf)
+                            {
+                                <form asp-action="DeleteUser" asp-route-id="@user.UserId" method="post" class="d-inline"
+                                      onsubmit="return confirm('Are you sure you want to remove staff member @user.Username?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        Delete
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">Current Session</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

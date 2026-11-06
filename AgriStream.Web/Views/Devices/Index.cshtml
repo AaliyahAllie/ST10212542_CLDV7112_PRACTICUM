@@ -1,0 +1,162 @@
+@model IEnumerable<AgriStream.Web.Models.IoTDevice>
+@{
+    ViewData["Title"] = "Hardware & Valves";
+    bool canActuateValves = User.IsInRole("Farmer") || User.IsInRole("Admin");
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold text-dark">Hardware Registry &amp; Valve Control</h3>
+        <small class="text-muted">Master telemetry hardware registry and remote field valve actuation console</small>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <span class="fw-bold text-dark">Connected Field Hardware Inventory</span>
+        <span class="badge bg-light text-dark border">@Model.Count() Units Registered</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 70px;">ID</th>
+                    <th>Serial Number</th>
+                    <th>Hardware Category</th>
+                    <th>Assigned Parcel</th>
+                    <th>Battery</th>
+                    <th>Operational Status</th>
+                    <th class="text-end" style="width: 220px;">Remote Controls</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var device in Model)
+                {
+                    <tr>
+                        <td class="text-muted">#@device.DeviceId</td>
+                        <td><code>@device.DeviceSerialNumber</code></td>
+                        <td>@device.DeviceType</td>
+                        <td>
+                            <strong>@(device.Field?.FieldName ?? "Field " + device.FieldId)</strong>
+                            @if (!string.IsNullOrEmpty(device.Field?.CropType))
+                            {
+                                <span class="badge bg-light text-secondary border small ms-1">@device.Field.CropType</span>
+                            }
+                        </td>
+                        <td>
+                            @if (device.BatteryLevelPercentage < 20)
+                            {
+                                <span class="text-danger fw-bold">@device.BatteryLevelPercentage% (Critical)</span>
+                            }
+                            else if (device.BatteryLevelPercentage < 50)
+                            {
+                                <span class="text-warning fw-bold">@device.BatteryLevelPercentage%</span>
+                            }
+                            else
+                            {
+                                <span class="text-success fw-bold">@device.BatteryLevelPercentage%</span>
+                            }
+                        </td>
+                        <td>
+                            @if (device.Status == "Active - Irrigating")
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    Active - Irrigating &#x1F4A7;
+                                </span>
+                            }
+                            else if (device.Status == "Online")
+                            {
+                                <span class="badge bg-success">Online - Monitoring</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@device.Status</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            @if (canActuateValves)
+                            {
+                                if (device.Status == "Active - Irrigating")
+                                {
+                                    <form asp-action="ResetStatus" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="deviceSerialNumber" value="@device.DeviceSerialNumber" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            Stop Irrigation
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-sm btn-agri-primary"
+                                            onclick="openIrrigationModal('@device.DeviceSerialNumber', '@(device.Field?.FieldName ?? "Field")')">
+                                        Start Irrigation
+                                    </button>
+                                }
+                            }
+                            else
+                            {
+                                <span class="badge bg-light text-muted border small">Valves: Farmer Control</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (canActuateValves)
+{
+    <!-- Modal: Start Irrigation (Farmer & Admin) -->
+    <div class="modal fade" id="irrigationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-dark">Dispatch Field Irrigation Cycle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form asp-action="TriggerIrrigation" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="modalDeviceSerial" name="deviceSerialNumber" />
+
+                    <div class="modal-body">
+                        <p class="text-muted small">
+                            Opens remote field valves and powers on irrigation booster pumps for the selected crop parcel.
+                        </p>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-dark">Target Unit &amp; Field</label>
+                            <input type="text" id="modalDeviceDisplay" class="form-control bg-light" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-dark">Cycle Duration</label>
+                            <select name="durationMinutes" class="form-select">
+                                <option value="15">15 Minutes (Surface hydration)</option>
+                                <option value="30" selected>30 Minutes (Standard root watering)</option>
+                                <option value="60">60 Minutes (Deep root drought cycle)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-sm btn-agri-primary">Dispatch Irrigation Cycle</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+            function openIrrigationModal(serial, field) {
+                document.getElementById('modalDeviceSerial').value = serial;
+                document.getElementById('modalDeviceDisplay').value = serial + " (" + field + ")";
+                var modal = new bootstrap.Modal(document.getElementById('irrigationModal'));
+                modal.show();
+            }
+        </script>
+    }
+}

@@ -1,0 +1,282 @@
+@model AgriStream.Web.Models.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Field Telemetry";
+    double avgMoisture = Model.RecentTelemetry.Any() ? Model.RecentTelemetry.Average(t => t.SoilMoisturePercentage) : 22.0;
+    double avgTemp = Model.RecentTelemetry.Any() ? Model.RecentTelemetry.Average(t => t.TemperatureCelsius) : 21.5;
+    bool hasLowMoisture = Model.RecentTelemetry.Any(t => t.SoilMoisturePercentage < 18);
+    bool canRecordTelemetry = User.IsInRole("Agronomist") || User.IsInRole("Admin");
+    bool canActuateValves = User.IsInRole("Farmer") || User.IsInRole("Admin");
+}
+
+<!-- Top Heading & Actions -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold text-dark">Field Telemetry Console</h3>
+        <small class="text-muted">Live measurement feed from in-ground soil probes and environmental weather stations</small>
+    </div>
+    <div class="mt-2 mt-md-0 d-flex align-items-center">
+        @if (canRecordTelemetry)
+        {
+            <button type="button" class="btn btn-sm btn-agri-primary me-2" data-bs-toggle="modal" data-bs-target="#newReadingModal">
+                + Record Field Reading
+            </button>
+        }
+        else
+        {
+            <span class="badge bg-light text-muted border me-2 py-2 px-2" title="Only Agronomists and Admins can record incoming sensor readings">
+                Telemetry Entry: Agronomist
+            </span>
+        }
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Refresh Feed</a>
+    </div>
+</div>
+
+<!-- Low Moisture Alert Banner if drought detected -->
+@if (hasLowMoisture || avgMoisture < 18)
+{
+    <div class="alert alert-warning d-flex flex-wrap justify-content-between align-items-center p-3 mb-4 border">
+        <div class="me-3 mb-2 mb-md-0">
+            <h6 class="fw-bold mb-1">&#x26A0;&#xFE0F; Low Soil Moisture Warning</h6>
+            <div class="small text-muted">
+                One or more probe sensors reported moisture below the recommended <strong>18.0%</strong> threshold. Immediate irrigation recommended.
+            </div>
+        </div>
+        @if (canActuateValves)
+        {
+            <form asp-action="QuickIrrigate" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="deviceSerialNumber" value="@Model.SelectedDeviceId" />
+                <input type="hidden" name="durationMinutes" value="30" />
+                <button type="submit" class="btn btn-sm btn-agri-success text-nowrap fw-bold px-3">
+                    Start 30-Min Irrigation
+                </button>
+            </form>
+        }
+        else
+        {
+            <span class="badge bg-light text-secondary border">Advisory: Notify Farmer to Irrigate</span>
+        }
+    </div>
+}
+
+<!-- Farm Status Metric Counters -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="kpi-card text-center">
+            <div class="kpi-title">Average Soil Moisture</div>
+            <div class="kpi-number @(avgMoisture < 18 ? "text-danger" : "text-success")">
+                @avgMoisture.ToString("F1")%
+            </div>
+            <small class="text-muted">Target threshold: 18.0% &ndash; 30.0%</small>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card text-center">
+            <div class="kpi-title">Average Soil Temperature</div>
+            <div class="kpi-number text-dark">
+                @avgTemp.ToString("F1") &deg;C
+            </div>
+            <small class="text-muted">Root zone sensor depth: 15cm</small>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card text-center">
+            <div class="kpi-title">Active Field Probes</div>
+            <div class="kpi-number" style="color: #0284c7;">
+                @Model.TotalOnlineDevices
+            </div>
+            <small class="text-muted">Streaming data live</small>
+        </div>
+    </div>
+</div>
+
+<!-- Field Parcels Overview Cards -->
+<h5 class="fw-bold mb-3 text-dark">Crop Parcels &amp; Zones</h5>
+<div class="row g-3 mb-4">
+    @foreach (var field in Model.Fields)
+    {
+        var fieldDevice = Model.Devices.FirstOrDefault(d => d.FieldId == field.FieldId) ?? Model.Devices.FirstOrDefault();
+        bool isIrrigating = fieldDevice != null && fieldDevice.Status == "Active - Irrigating";
+
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center py-2">
+                    <span class="fw-bold text-dark">@field.FieldName</span>
+                    <span class="badge bg-light text-dark border">@field.CropType</span>
+                </div>
+                <div class="card-body">
+                    <div class="row small mb-2 text-muted">
+                        <div class="col-6 mb-1"><strong>Area:</strong> @field.AreaHectares Hectares</div>
+                        <div class="col-6 mb-1"><strong>Soil Composition:</strong> @(field.SoilType ?? "Loam")</div>
+                        <div class="col-6"><strong>Primary Sensor:</strong> <code>@(fieldDevice?.DeviceSerialNumber ?? "SN-SOIL-001")</code></div>
+                        <div class="col-6">
+                            <strong>Status:</strong> 
+                            @if (isIrrigating)
+                            {
+                                <span class="badge bg-warning text-dark">Irrigating &#x1F4A7;</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Monitoring</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mt-3 d-flex justify-content-between align-items-center pt-2 border-top">
+                        <small class="text-muted">Field Actuation:</small>
+                        @if (isIrrigating)
+                        {
+                            <span class="text-success small fw-bold">Hydration in progress...</span>
+                        }
+                        else if (canActuateValves)
+                        {
+                            <form asp-action="QuickIrrigate" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="deviceSerialNumber" value="@(fieldDevice?.DeviceSerialNumber ?? "SN-SOIL-001")" />
+                                <input type="hidden" name="durationMinutes" value="30" />
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                    Turn On Irrigation (30m)
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="badge bg-light text-muted border">Valve: Farmer Actuated</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Telemetry Readings Table -->
+<div class="card mb-4">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center py-2">
+        <span class="fw-bold text-dark">Live Sensor Telemetry Log</span>
+        <form method="get" class="d-flex align-items-center mb-0 mt-2 mt-md-0">
+            <label class="small text-muted me-2 mb-0">Filter Probe:</label>
+            <select name="deviceId" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                <option value="">All Field Probes</option>
+                @foreach (var dev in Model.Devices)
+                {
+                    <option value="@dev.DeviceSerialNumber" selected="@(dev.DeviceSerialNumber == Model.SelectedDeviceId)">
+                        @dev.DeviceSerialNumber (@dev.DeviceType)
+                    </option>
+                }
+            </select>
+        </form>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Sensor Serial</th>
+                    <th>Timestamp</th>
+                    <th>Soil Moisture</th>
+                    <th>Temperature</th>
+                    <th>Battery</th>
+                    <th>Condition Assessment</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.RecentTelemetry.Any())
+                {
+                    foreach (var item in Model.RecentTelemetry)
+                    {
+                        <tr>
+                            <td><code>@item.PartitionKey</code></td>
+                            <td class="small text-muted">
+                                @(item.Timestamp.HasValue ? item.Timestamp.Value.ToLocalTime().ToString("yyyy/MM/dd HH:mm:ss") : "Just now")
+                            </td>
+                            <td>
+                                <span class="fw-bold @(item.SoilMoisturePercentage < 18 ? "text-danger" : "text-success")">
+                                    @item.SoilMoisturePercentage.ToString("F1")%
+                                </span>
+                            </td>
+                            <td>@item.TemperatureCelsius.ToString("F1") &deg;C</td>
+                            <td>
+                                <span class="small @(item.BatteryLevel < 30 ? "text-danger" : "text-muted")">
+                                    @item.BatteryLevel%
+                                </span>
+                            </td>
+                            <td>
+                                @if (item.SoilMoisturePercentage < 18)
+                                {
+                                    <span class="badge bg-danger">Low Moisture</span>
+                                }
+                                else if (item.SoilMoisturePercentage > 35)
+                                {
+                                    <span class="badge bg-info text-dark">Saturated</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Optimal</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            No telemetry records found.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (canRecordTelemetry)
+{
+    <!-- Modal: Record Sensor Reading (Agronomist & Admin) -->
+    <div class="modal fade" id="newReadingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-dark">Record Probe Telemetry Reading</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form asp-action="SimulateTelemetry" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body">
+                        <p class="small text-muted">
+                            Agronomist field reading entry. Simulates an incoming telemetry packet from an in-ground soil probe.
+                        </p>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-dark">Select Probe Sensor</label>
+                            <select name="deviceSerialNumber" class="form-select">
+                                @foreach (var dev in Model.Devices)
+                                {
+                                    <option value="@dev.DeviceSerialNumber">@dev.DeviceSerialNumber (@dev.DeviceType)</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col">
+                                <label class="form-label fw-bold small text-dark">Soil Moisture (%)</label>
+                                <input type="number" step="0.1" name="moisture" value="22.5" class="form-control" required />
+                                <small class="text-muted">Enter &lt; 18 to trigger low moisture warning</small>
+                            </div>
+                            <div class="col">
+                                <label class="form-label fw-bold small text-dark">Temperature (&deg;C)</label>
+                                <input type="number" step="0.1" name="temperature" value="21.0" class="form-control" required />
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label fw-bold small text-dark">Battery Level (%)</label>
+                            <input type="number" name="battery" value="95" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-sm btn-agri-primary">Save Telemetry Reading</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}

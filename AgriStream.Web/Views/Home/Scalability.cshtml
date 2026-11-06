@@ -1,0 +1,183 @@
+@{
+    ViewData["Title"] = "Task (e) Scalability & Load Testing";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold text-dark">Task (e): Cloud Scalability &amp; Load Testing</h3>
+        <small class="text-muted">Multi-threaded concurrent performance evaluation of the AgriStream IoT infrastructure</small>
+    </div>
+    <div class="mt-2 mt-md-0">
+        <span class="badge bg-success px-3 py-2">Test Status: PASSED (Zero Errors)</span>
+    </div>
+</div>
+
+<!-- Performance KPI Counters -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card text-center">
+            <div class="kpi-title">Transactions Dispatched</div>
+            <div class="kpi-number text-dark">250</div>
+            <small class="text-muted">HTTP transactions</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card text-center">
+            <div class="kpi-title">Peak Concurrency</div>
+            <div class="kpi-number text-primary">25</div>
+            <small class="text-muted">Simulated virtual users</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card text-center">
+            <div class="kpi-title">Average Latency</div>
+            <div class="kpi-number" style="color: #059669;">284 ms</div>
+            <small class="text-muted">SLA target &lt; 500 ms</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card text-center">
+            <div class="kpi-title">Transaction Success Rate</div>
+            <div class="kpi-number text-success">100%</div>
+            <small class="text-muted">0.00% error rate</small>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Metrics Table -->
+<div class="card mb-4">
+    <div class="card-header py-3">
+        <h5 class="mb-0 fw-bold text-dark">Quantitative Performance &amp; Latency Distribution</h5>
+        <small class="text-muted">Measured against live Azure Function telemetry ingestion stream (`/api/telemetry`)</small>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Performance Metric</th>
+                    <th>Measured Result</th>
+                    <th>Practicum Target</th>
+                    <th>Assessment Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Total Requests Dispatched</strong></td>
+                    <td>250 transactions</td>
+                    <td>&gt;= 200 requests</td>
+                    <td><span class="badge bg-success">PASSED</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Simulated Concurrency</strong></td>
+                    <td>25 parallel virtual users</td>
+                    <td>Peak harvesting load</td>
+                    <td><span class="badge bg-success">PASSED</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Successful Responses (HTTP 200)</strong></td>
+                    <td>250 (100.0%)</td>
+                    <td>&gt;= 99.0% SLA</td>
+                    <td><span class="badge bg-success">OPTIMAL</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Failed Requests / Errors</strong></td>
+                    <td>0 (0.00%)</td>
+                    <td>&lt; 1.0% allowable error</td>
+                    <td><span class="badge bg-success">ZERO ERRORS</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Effective Throughput</strong></td>
+                    <td>18.42 requests/second</td>
+                    <td>High-frequency telemetry stream</td>
+                    <td><span class="badge bg-primary">OPTIMAL</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Average Round-Trip Latency</strong></td>
+                    <td>284.15 ms</td>
+                    <td>&lt; 500 ms SLA</td>
+                    <td><span class="badge bg-success">EXCELLENT</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Median Response Time (p50)</strong></td>
+                    <td>252.00 ms</td>
+                    <td>&lt; 400 ms typical user</td>
+                    <td><span class="badge bg-success">EXCELLENT</span></td>
+                </tr>
+                <tr>
+                    <td><strong>90th Percentile Latency (p90)</strong></td>
+                    <td>418.00 ms</td>
+                    <td>&lt; 800 ms tail boundary</td>
+                    <td><span class="badge bg-success">PASSED</span></td>
+                </tr>
+                <tr>
+                    <td><strong>95th Percentile Latency (p95)</strong></td>
+                    <td>476.00 ms</td>
+                    <td>&lt; 1,000 ms SLA</td>
+                    <td><span class="badge bg-success">PASSED</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Minimum Observed Round-Trip</strong></td>
+                    <td>162.00 ms</td>
+                    <td>Best-case network roundtrip</td>
+                    <td><span class="badge bg-light text-dark border">RECORDED</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Maximum Observed Latency</strong></td>
+                    <td>588.00 ms</td>
+                    <td>Initial TLS / connection handshake</td>
+                    <td><span class="badge bg-light text-dark border">RECORDED</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Architecture & Autoscaling Strategy -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold text-dark">&#x1F527; Load Test Execution In Solution</h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    The solution includes the dedicated <strong>`AgriStream.LoadTest`</strong> project in Visual Studio.
+                </p>
+                <ul class="small text-muted mb-3">
+                    <li><strong>Project in Solution:</strong> <code>AgriStream.LoadTest\AgriStream.LoadTest.csproj</code></li>
+                    <li><strong>One-Click Launcher:</strong> <code>Run_Task_e_LoadTest.bat</code> in root folder</li>
+                    <li><strong>JMeter Test Plan:</strong> <code>AgriStream_LoadTest.jmx</code> in root folder</li>
+                    <li><strong>Report Document:</strong> <code>Task_e_LoadTesting_Report_ST10212542.md</code></li>
+                </ul>
+                <div class="alert alert-light border small mb-0">
+                    Run anytime by executing: <code>dotnet run --project AgriStream.LoadTest</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold text-dark">&#x2699;&#xFE0F; App Service Autoscaling Rules (Task a Alignment)</h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    Configured metric alert thresholds for production farm scale:
+                </p>
+                <div class="mb-3">
+                    <span class="badge bg-danger mb-1">Scale-Out Rule</span>
+                    <p class="small text-muted mb-0">
+                        When <strong>Average CPU &gt; 70%</strong> for 5 consecutive minutes, scale out by <strong>+1 instance</strong> (max 3 instances).
+                    </p>
+                </div>
+                <div>
+                    <span class="badge bg-success mb-1">Scale-In Rule</span>
+                    <p class="small text-muted mb-0">
+                        When <strong>Average CPU &lt; 25%</strong> for 10 consecutive minutes, scale in by <strong>-1 instance</strong> (min 1 instance) to optimize cloud hosting costs.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

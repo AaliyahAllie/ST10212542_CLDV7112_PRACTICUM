@@ -1,0 +1,49 @@
+@model AgriStream.Web.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+        <div class="card my-4">
+            <div class="card-header text-center py-3">
+                <h4 class="mb-0 fw-bold" style="color: #0f172a;">Agri<span style="color: #d97706;">Stream</span></h4>
+                <small class="text-muted">Operations Console Login</small>
+            </div>
+            <div class="card-body p-4">
+                <form asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label fw-bold small text-dark"></label>
+                        <input asp-for="Username" class="form-control" id="loginUsername" placeholder="e.g. john_farmer" autofocus />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-bold small text-dark"></label>
+                        <input asp-for="Password" type="password" class="form-control" id="loginPassword" placeholder="••••••••" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label small text-muted"></label>
+                    </div>
+
+                    <button type="submit" class="btn btn-agri-primary w-100 py-2 fw-bold">Sign In to Console</button>
+                </form>
+
+                <div class="text-center mt-3 small">
+                    <span class="text-muted">New staff member?</span>
+                    <a asp-controller="Account" asp-action="Register" class="text-decoration-none ms-1" style="color: #d97706; font-weight: 600;">Register Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

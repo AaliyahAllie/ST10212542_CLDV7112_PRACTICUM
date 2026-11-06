@@ -1,0 +1,64 @@
+# =======================================================
+# AgriStream IoT - CLDV7112 Practicum .gitignore
+# Student ID: ST10212542
+# =======================================================
+
+# 1. Credentials, Secrets & Sensitive Configuration Files
+appsettings*.json
+!appsettings.example.json
+local.settings*.json
+!local.settings.example.json
+*.pubxml
+*.pubxml.user
+*.publishsettings
+PublishProfiles/
+*.secrets.json
+.env
+.env.*
+
+# 2. Build Output & Binaries
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+build/
+dist/
+publish/
+
+# 3. Visual Studio Workspace & User Data
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.pidb
+*.booproj
+*.svclog
+Generated\ Files/
+
+# 4. Azure Functions Runtime & Extensions
+.azurefunctions/
+workers/
+extensions.csproj
+
+# 5. OS & Office Temporary Lock Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+~$*.docx
+~$*.doc
+~$*.xlsx
+~$*.pptx
+~*.tmp
+*.tmp
+*.bak
+*.swp
+
+# 6. Test Logs & Diagnostic Traces
+*.log
+*.trx
+*.coverage
+*.coveragexml
+test-results/
+TestResults/

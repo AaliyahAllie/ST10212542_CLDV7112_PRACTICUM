@@ -1,0 +1,68 @@
+@model AgriStream.Web.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Register Account";
+    var roles = ViewBag.Roles as List<AgriStream.Web.Models.Role> ?? new List<AgriStream.Web.Models.Role>();
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+        <div class="card my-4">
+            <div class="card-header text-center py-3">
+                <h4 class="mb-0 fw-bold" style="color: #0f172a;">Agri<span style="color: #d97706;">Stream</span></h4>
+                <small class="text-muted">Register New Operations Staff</small>
+            </div>
+            <div class="card-body p-4">
+                <form asp-controller="Account" asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label fw-bold small text-dark"></label>
+                        <input asp-for="Username" class="form-control" placeholder="e.g. mike_operator" autofocus />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-bold small text-dark"></label>
+                        <input asp-for="Email" class="form-control" placeholder="e.g. mike@agristream.farm" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="RoleId" class="form-label fw-bold small text-dark">Staff Role</label>
+                        <select asp-for="RoleId" class="form-select">
+                            @foreach (var role in roles)
+                            {
+                                <option value="@role.RoleId">@role.RoleName - @role.Description</option>
+                            }
+                        </select>
+                        <span asp-validation-for="RoleId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-bold small text-dark"></label>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label fw-bold small text-dark"></label>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="••••••••" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-agri-primary w-100 py-2 fw-bold">Create Staff Account</button>
+                </form>
+
+                <div class="text-center mt-3 small">
+                    <span class="text-muted">Already registered?</span>
+                    <a asp-controller="Account" asp-action="Login" class="text-decoration-none ms-1" style="color: #d97706; font-weight: 600;">Sign In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

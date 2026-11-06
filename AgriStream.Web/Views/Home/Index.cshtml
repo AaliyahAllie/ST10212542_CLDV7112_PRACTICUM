@@ -1,0 +1,105 @@
+@{
+    ViewData["Title"] = "Operations Overview";
+}
+
+<div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border-radius: 10px;">
+    <div class="card-body p-4 p-md-5">
+        <div class="d-flex align-items-center mb-2">
+            <span class="badge bg-warning text-dark me-2 px-2 py-1 fw-bold">Commercial Agriculture</span>
+            <span class="text-secondary small">Real-Time Telemetry &amp; Field Automation</span>
+        </div>
+        <h1 class="display-6 fw-bold text-white mb-3">AgriStream Smart Farming Operations</h1>
+        <p class="col-md-9 text-light opacity-75 fs-5 mb-4">
+            Unified agricultural monitoring and automation platform for large-scale crop operations. Centralizes real-time probe telemetry, high-resolution drone survey photography, and automated irrigation valve controls.
+        </p>
+        <div>
+            @if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-agri-primary me-2 px-4 py-2">Open Telemetry Console</a>
+                <a asp-controller="Media" asp-action="Index" class="btn btn-outline-light px-3 py-2">View Drone Surveys</a>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login" class="btn btn-agri-primary me-2 px-4 py-2">Sign In to Farm Console</a>
+                <a asp-controller="Home" asp-action="About" class="btn btn-outline-light px-3 py-2">About Our Systems</a>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Operational Metric KPI Blocks -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card h-100">
+            <div class="kpi-title">Crop Parcels Monitored</div>
+            <div class="kpi-number text-dark">@ViewBag.TotalFields</div>
+            <div class="small text-muted">Active management zones</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card h-100">
+            <div class="kpi-title">Active Field Probes</div>
+            <div class="kpi-number" style="color: #0284c7;">@ViewBag.TotalDevices</div>
+            <div class="small text-muted">In-ground telemetry nodes</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card h-100">
+            <div class="kpi-title">Drone Aerial Surveys</div>
+            <div class="kpi-number" style="color: #d97706;">@ViewBag.TotalDroneScans</div>
+            <div class="small text-muted">High-res aerial scans</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card h-100">
+            <div class="kpi-title">Registered Personnel</div>
+            <div class="kpi-number" style="color: #059669;">@ViewBag.TotalUsers</div>
+            <div class="small text-muted">Agronomists &amp; operators</div>
+        </div>
+    </div>
+</div>
+
+<!-- Core Capabilities Section -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold text-dark">&#x1F331; Soil Moisture &amp; Health</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">
+                    Streams temperature and moisture telemetry at multiple root-zone depths. Automatically detects hydration stress and drought risks before visible crop wilt occurs.
+                </p>
+                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-sm btn-outline-secondary">Inspect Telemetry</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold text-dark">&#x1F681; Aerial Drone Surveys</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">
+                    Ingests high-resolution daylight orthomosaic imagery from autonomous farm drones. Enables rapid visual inspection of crop canopy color and canopy uniformity.
+                </p>
+                <a asp-controller="Media" asp-action="Index" class="btn btn-sm btn-outline-secondary">Browse Surveys</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold text-dark">&#x1F4A7; Remote Valve Automation</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">
+                    Provides direct actuation commands to solenoid field valves and center pivots. Schedules precision hydration cycles tailored to current probe readings.
+                </p>
+                <a asp-controller="Devices" asp-action="Index" class="btn btn-sm btn-outline-secondary">Manage Hardware</a>
+            </div>
+        </div>
+    </div>
+</div>

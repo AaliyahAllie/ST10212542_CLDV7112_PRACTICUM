@@ -1,0 +1,51 @@
+@model AgriStream.Web.Models.ViewModels.UploadDroneMediaViewModel
+@{
+    ViewData["Title"] = "Upload Aerial Survey";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header py-3">
+                <h5 class="mb-0 fw-bold text-dark">Upload Drone Aerial Survey</h5>
+                <small class="text-muted">Save high-resolution field survey images to the system repository</small>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="FieldId" class="form-label fw-bold small text-dark">Target Crop Parcel</label>
+                        <select asp-for="FieldId" asp-items="ViewBag.Fields" class="form-select"></select>
+                        <span asp-validation-for="FieldId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="FlightAltitudeMeters" class="form-label fw-bold small text-dark">Flight Altitude</label>
+                        <div class="input-group">
+                            <input asp-for="FlightAltitudeMeters" type="number" class="form-control" value="120" />
+                            <span class="input-group-text">meters AGL</span>
+                        </div>
+                        <span asp-validation-for="FlightAltitudeMeters" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ImageFile" class="form-label fw-bold small text-dark">Select Image File (.jpg, .jpeg, .png)</label>
+                        <input asp-for="ImageFile" type="file" accept="image/*" class="form-control" required />
+                        <span asp-validation-for="ImageFile" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-sm btn-agri-primary px-4">Upload Survey</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

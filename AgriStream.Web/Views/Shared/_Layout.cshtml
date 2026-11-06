@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AgriStream Farm Console</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <header>
+        <!-- Top Operational Status Bar -->
+        <div class="top-header">
+            <div class="container d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-secondary me-2">&#x25CF;</span>
+                    <span>AgriStream Smart Farming Operations Console</span>
+                </div>
+                <div>
+                    <span class="text-secondary me-3">System Time: @DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm") UTC</span>
+                    <span class="badge bg-dark border border-secondary text-light">ST10212542</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Navigation Bar -->
+        <nav class="navbar navbar-expand-lg main-navbar navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    Agri<span>Stream</span> <small class="text-muted fs-6 fw-normal">IoT</small>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">Overview</a>
+                        </li>
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")" asp-controller="Dashboard" asp-action="Index">Field Telemetry</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Media" ? "active" : "")" asp-controller="Media" asp-action="Index">Drone Aerial Scans</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Devices" ? "active" : "")" asp-controller="Devices" asp-action="Index">Hardware &amp; Valves</a>
+                            </li>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" ? "active" : "")" asp-controller="Admin" asp-action="Index">
+                                        <span class="text-warning">&#x2699;</span> Staff Directory
+                                    </a>
+                                </li>
+                            }
+                        }
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Scalability" ? "active" : "")" asp-controller="Home" asp-action="Scalability">Scalability (Task e)</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "About" ? "active" : "")" asp-controller="Home" asp-action="About">About Company</a>
+                        </li>
+                    </ul>
+
+                    <ul class="navbar-nav ms-auto align-items-lg-center">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            var role = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "Staff";
+                            <li class="nav-item me-3 text-light">
+                                <span class="text-secondary small">Logged in:</span>
+                                <strong class="text-light ms-1">@User.Identity.Name</strong>
+                                @if (role == "Admin")
+                                {
+                                    <span class="badge bg-danger ms-1">Admin</span>
+                                }
+                                else if (role == "Farmer")
+                                {
+                                    <span class="badge ms-1" style="background-color: #d97706; color: #fff;">Farmer</span>
+                                }
+                                else if (role == "Agronomist")
+                                {
+                                    <span class="badge bg-primary ms-1">Agronomist</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary ms-1">@role</span>
+                                }
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-light">Logout</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item me-2">
+                                <a class="btn btn-sm btn-outline-light" asp-controller="Account" asp-action="Login">Sign In</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-sm btn-agri-primary" asp-controller="Account" asp-action="Register">Register Staff</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container flex-grow-1 mt-4">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success:</strong> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Alert:</strong> @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <main role="main" class="pb-4">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer>
+        <div class="container d-flex flex-wrap justify-content-between align-items-center">
+            <span class="text-muted small">&copy; 2026 AgriStream IoT &bull; Commercial Smart Farming Telemetry Platform</span>
+            <span class="text-muted small">Student ID: ST10212542 &bull; CLDV7112 Practicum</span>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
